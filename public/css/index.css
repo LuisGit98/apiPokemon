@@ -1,0 +1,15 @@
+*{
+    margin: 0px auto;
+    font-family: Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+body{
+    background-color: cadetblue;
+}
+.container{
+    text-align: center;
+    width: 85%;
+}
+h1{
+    padding-top: 2%;
+    font-size: 2rem;
+}
