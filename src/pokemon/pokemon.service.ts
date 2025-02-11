@@ -9,13 +9,22 @@ import { UpdatePokemonDto } from './dto/update-pokemon.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model } from 'mongoose';
 import { Pokemon } from './entities/pokemon.entity';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { ConfigService } from '@nestjs/config';
+
 
 @Injectable()
 export class PokemonService {
   constructor(
     @InjectModel(Pokemon.name)
     private readonly pokemonModel: Model<Pokemon>,
-  ) {}
+
+    private readonly configService: ConfigService,
+  ) {
+    //formas de llamar varibles del .env:
+    console.log(process.env.DEFAULT_LIMIT) //directamente. da undefined
+    console.log(configService.get('defaultLimit'))//atraves del configService. si da el valor 
+  }
 
   async create(createPokemonDto: CreatePokemonDto) {
     try {
@@ -26,8 +35,10 @@ export class PokemonService {
     }
   }
 
-  async findAll() {
-    let pokemons = await this.pokemonModel.find();
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 0, offset = 0 } = paginationDto;
+
+    let pokemons = await this.pokemonModel.find().limit(limit).skip(offset);
 
     return pokemons;
   }
@@ -72,17 +83,20 @@ export class PokemonService {
     }
   }
 
-  async remove(_id: string) {  // poner el id con guion bajo para mandar un solo id en el objeto que le paso adeleOne()
+  async remove(id: string) {
+    // poner el id con guion bajo para mandar un solo id en el objeto que le paso adeleOne()
     // const po = await this.findOne(id);
     // await po.deleteOne();
     // return {id};
+    await this.pokemonModel.deleteMany({});
 
-    const {deletedCount} = await this.pokemonModel.deleteOne({_id})//este. Tambien puede ser {_id:id} (si recibiera "id" en remove())
-    if(deletedCount===0){
-      throw new BadRequestException(`Pokemon with id ${_id} not found`)
-    }
+    // const {deletedCount} = await this.pokemonModel.deleteOne({_id})//este. Tambien puede ser {_id:id} (si recibiera "id" en remove())
+    // if(deletedCount===0){
+    //   throw new BadRequestException(`Pokemon with id ${_id} not found`)
+    // }
+    //deleteOne() regresa informacion de lo que se elimino (deletedCount) entonces en base a eso yo  (si deletedCount viene en 0) puedo dar el error de que no se encontro ese id o retornar un 200 (si deletedCount = 1) De esa forma evito hacer dos consultas a la base de datos
 
-    return  
+    return;
   }
 
   private handleExeptions(error: any) {

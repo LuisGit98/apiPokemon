@@ -9,10 +9,14 @@ async function bootstrap() {
   //que no se te olvide poner el pipe global para solo aceptar los datos cpn las reglas 
   app.useGlobalPipes(new ValidationPipe({
     whitelist:true,
-    forbidNonWhitelisted:true
+    forbidNonWhitelisted:true,
+    transform:true,//para que transforme los queryparams a a los que nececito (recibo string quiero number)
+    transformOptions:{
+      enableImplicitConversion:true,
+    }
   }))
 
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT!);
 }
 bootstrap();
